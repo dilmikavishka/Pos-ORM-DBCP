@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Order Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/nav.css">
+</head>
+
+<body>
+<header id="header">
+    <!--System Name-->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" id="Logo">POS SYSTEM</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="../index.html" id="home-nav">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="customer.html" id="customer-nav">Customer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="item.html" id="item-nav">Item</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="order.html" id="order-nav">Place Order</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container mt-5">
+    <h1 class="text-center">Order Management Form</h1>
+    <hr/>
+
+    <!-- Add Order Button -->
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#orderModal">
+        Place New Order
+    </button>
+
+    <!-- Order Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="max-width: 50%; height: 50vh; margin: auto;"> <!-- Center modal in the middle -->
+            <div class="modal-content">
+                <div class="container m-2">
+                    <form>
+                        <!-- Customer Selection -->
+                        <div class="mb-3">
+                            <label for="customer_id" class="form-label">Select Customer</label>
+                            <select class="form-select" id="customer_id">
+
+                            </select>
+                        </div>
+
+                        <!-- Customer Name -->
+                        <div class="mb-3">
+                            <label for="customer_name" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customer_name" readonly disabled>
+                        </div>
+
+
+                        <!-- Item Selection -->
+                        <div class="mb-3">
+                            <label for="item_id" class="form-label">Select Item</label>
+                            <select class="form-select" id="item_id">
+
+                            </select>
+                        </div>
+
+                        <!-- Item Details -->
+                        <div class="mb-3">
+                            <label for="item_qty" class="form-label">Item Quantity on Stock</label>
+                            <input type="text" class="form-control" id="item_qty" readonly disabled>
+                        </div>
+
+                        <!-- Item Details -->
+                        <div class="mb-3">
+                            <label for="item_description" class="form-label">Item Description</label>
+                            <input type="text" class="form-control" id="item_description" readonly disabled>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" min="1" value="1">
+                        </div>
+
+                        <!-- Total Price -->
+                        <div class="mb-3">
+                            <label for="total_price" class="form-label">Total Price</label>
+                            <input type="text" class="form-control" id="total_price" readonly disabled>
+                        </div>
+
+                        <!-- Your Price -->
+                        <div class="mb-3">
+                            <label for="your_price" class="form-label">Your Price</label>
+                            <input type="text" class="form-control" id="your_price">
+                        </div>
+
+                        <!-- Save Order Button -->
+                        <button id="btn_save_order" type="button" class="btn btn-primary">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display Orders Table -->
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <td>Order ID</td>
+            <td>Customer Name</td>
+            <td>Item Description</td>
+            <td>Quantity</td>
+            <td>Total Price</td>
+
+        </tr>
+        </thead>
+        <tbody id="order_table_body">
+
+        </tbody>
+    </table>
+</div>
+
+<script src="../js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const fetchCustomerData = () => {
+        const customerSelect = $("#customer_id");
+        customerSelect.empty();
+
+        $.ajax({
+            url: "http://localhost:8080/JavaEE_Pos_System_Web_exploded/customer",
+            method: "GET",
+            success: function (res) {
+                localStorage.setItem("customers", JSON.stringify(res));
+                res.forEach(customer => {
+                    customerSelect.append(`<option value="${customer.id}">${customer.id}</option>`);
+                });
+            },
+            error: function (err) {
+                console.log("Error fetching customer data:", err);
+            }
+        });
+    };
+
+    const fetchCustomerName = () => {
+        const customerId = $("#customer_id").val();
+        const customers = JSON.parse(localStorage.getItem("customers"));
+        if (customers) {
+            const selectedCustomer = customers.find(customer => customer.id == customerId);
+            if (selectedCustomer) {
+                $("#customer_name").val(selectedCustomer.name);
+            }
+        }
+    };
+
+    // const fetchItemData = () => {
+    //     const itemSelect = $("#item_id");
+    //     itemSelect.empty();
+    //
+    //     $.ajax({
+    //         url: "http://localhost:8080/Application01_Web_exploded/item",
+    //         method: "GET",
+    //         success: function (resItem) {
+    //             localStorage.setItem("items", JSON.stringify(resItem));
+    //             resItem.forEach(item => {
+    //                 itemSelect.append(`<option value="${item.code}">${item.code}</option>`);
+    //             });
+    //         },
+    //         error: function (err) {
+    //             console.log("Error fetching item data:", err);
+    //         }
+    //     });
+    // };
+    //
+    // const fetchItemDesc = () => {
+    //     const itemCode = $("#item_id").val();
+    //     const items = JSON.parse(localStorage.getItem("items"));
+    //     if (items) {
+    //         const selectedItem = items.find(item => item.code == itemCode);
+    //         if (selectedItem) {
+    //             $("#item_description").val(selectedItem.description);
+    //             $("#item_qty").val(selectedItem.qtyOnHand);
+    //             $("#quantity").attr("max", selectedItem.qtyOnHand);
+    //             calculateTotalPrice(selectedItem.unitPrice);
+    //         }
+    //     }
+    // };
+    //
+    // const calculateTotalPrice = (itemPrice) => {
+    //     const quantity = $("#quantity").val();
+    //     const totalPrice = itemPrice * quantity;
+    //     $("#total_price").val(totalPrice.toFixed(2));
+    // };
+    //
+    // $("#quantity").on("change", function () {
+    //     const itemCode = $("#item_id").val();
+    //     const items = JSON.parse(localStorage.getItem("items"));
+    //     const selectedItem = items.find(item => item.code == itemCode);
+    //     if (selectedItem) {
+    //         calculateTotalPrice(selectedItem.unitPrice);
+    //     }
+    // });
+    //
+    // $("#btn_save_order").click((e) => {
+    //     e.preventDefault();
+    //
+    //     const customerId = $("#customer_id").val();
+    //     const itemCode = $("#item_id").val();
+    //     const quantity = $("#quantity").val();
+    //     const totalPrice = $("#total_price").val();
+    //     const yourPrice = $("#your_price").val();
+    //
+    //     const items = JSON.parse(localStorage.getItem("items"));
+    //     const selectedItem = items.find(item => item.code == itemCode);
+    //
+    //     if (selectedItem) {
+    //         const updatedQty = selectedItem.qtyOnHand - quantity;
+    //
+    //         const orderData = {
+    //             customerId: customerId,
+    //             itemCode: itemCode,
+    //             quantity: quantity,
+    //             totalPrice: totalPrice,
+    //             yourPrice: yourPrice
+    //         };
+    //
+    //         $.ajax({
+    //             url: "http://localhost:8080/Application01_Web_exploded/Order",
+    //             type: "POST",
+    //             data: orderData,
+    //             success: function (response) {
+    //                 console.log("Order placed successfully!", response);
+    //
+    //                 const updatedItemData = {
+    //                     code: itemCode,
+    //                     description: selectedItem.description,
+    //                     qtyOnHand: updatedQty,
+    //                     unitPrice: selectedItem.unitPrice
+    //                 };
+    //
+    //                 $.ajax({
+    //                     url: `http://localhost:8080/Application01_Web_exploded/item?code=${updatedItemData.code}&desc=${updatedItemData.description}&qtyOnHand=${updatedItemData.qtyOnHand}&unitPrice=${updatedItemData.unitPrice}`,
+    //                     type: "PUT",
+    //                     contentType: "application/json",
+    //
+    //                     success: function (updateResponse) {
+    //                         console.log("Item updated successfully!", updateResponse);
+    //                         $("#customer_id").val("");
+    //                         $("item_id").val("");
+    //                         $("item_description").val("");
+    //                         $("item_qty").val("");
+    //                         $("#quantity").val(1);
+    //                         $("#total_price").val("");
+    //                         $("#your_price").val("");
+    //                         fetchOrderData();
+    //                     },
+    //                     error: function (updateError) {
+    //                         console.error("Failed to update item:", updateError.responseText);
+    //                     }
+    //                 });
+    //             },
+    //             error: function (xhr) { //xml http request
+    //                 console.error("Error placing order:", xhr.responseText);
+    //             }
+    //         });
+    //     } else {
+    //         console.error("Selected item not found in inventory.");
+    //     }
+    // });
+    //
+    // const fetchOrderData = () => {
+    //     $.ajax({
+    //         url: "http://localhost:8080/Application01_Web_exploded/Order",
+    //         method: "GET",
+    //         success: function (result) {
+    //             console.log("AJAX Success:", result);
+    //
+    //             const orderTableBody = $("#order_table_body");
+    //             orderTableBody.empty();
+    //
+    //             result.forEach(order => {
+    //                 console.log("Order:", order);
+    //                 orderTableBody.append(`
+    //         <tr>
+    //             <td>${order.order_id}</td>
+    //             <td>${order.customer_id}</td>
+    //             <td>${order.item_code}</td>
+    //             <td>${order.quantity}</td>
+    //             <td>${order.total_price}</td>
+    //         </tr>
+    //     `);
+    //             });
+    //         },
+    //         error: function (err) {
+    //             console.log("Error fetching order data:", err);
+    //         }
+    //     });
+    // };
+    //
+    // fetchOrderData();
+    fetchCustomerData();
+    $("#customer_id").on("change", fetchCustomerName);
+    // $("#item_id").on("change", fetchItemDesc);
+    // fetchItemData();
+</script>
+
+
+
+</body>
+
+</html>

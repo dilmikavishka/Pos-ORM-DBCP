@@ -1,0 +1,9 @@
+#POST  http://localhost:8080/JavaEE_Pos_System_Web_exploded/customer
+#content-type: application/json
+#
+#{
+# "name": "Rahul",
+#  "address": "Pune"
+#}
+
+GET http://localhost:8080/JavaEE_Pos_System_Web_exploded/customer
