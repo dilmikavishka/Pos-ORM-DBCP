@@ -21,7 +21,7 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<CustomerDTO> customerList = customerBo.getAllCustomers();
-        // Use JSON-P to construct the JSON response
+
         JsonArrayBuilder allCustomer = Json.createArrayBuilder();
         for (CustomerDTO customer : customerList) {
             JsonObjectBuilder customerJson = Json.createObjectBuilder();
@@ -31,7 +31,7 @@ public class CustomerServlet extends HttpServlet {
             allCustomer.add(customerJson);
         }
 
-        // Set response type and write the JSON array to the output
+
         resp.setContentType("application/json");
         resp.getWriter().print(allCustomer.build().toString());
     }
