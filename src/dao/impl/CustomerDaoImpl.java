@@ -19,10 +19,10 @@ public class CustomerDaoImpl implements CustomerDao {
         String address = entity.getAddress();
 
         try {
-            // Load the MySQL JDBC driver
+
             Class.forName("com.mysql.jdbc.Driver");
 
-            // Establish connection
+
             try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS)) {
 
                 String getMaxIdQuery = "SELECT MAX(id) AS max_id FROM customer";
@@ -48,7 +48,7 @@ public class CustomerDaoImpl implements CustomerDao {
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            return false; // If the driver is not found
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -80,13 +80,13 @@ public class CustomerDaoImpl implements CustomerDao {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS)) {
-                // Query to get all customers
+
                 String getAllQuery = "SELECT * FROM customer";
 
                 try (Statement stmt = connection.createStatement();
                      ResultSet rs = stmt.executeQuery(getAllQuery)) {
 
-                    // Loop through the result set and add customers to the list
+
                     while (rs.next()) {
                         Customer customer = new Customer();
                         customer.setId(rs.getString("id"));
